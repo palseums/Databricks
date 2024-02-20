@@ -1,0 +1,38 @@
+%fs ls dbfs:/FileStore/tables/delta/
+%fs head /FileStore/tables/delta/_delta_log/00000000000000000000.json
+
+from delta.tables import *
+DeltaTable.create(spark)\
+    .tableName("delta_internal_demo")\
+    .addColumn("emp_id","INT")\
+    .addColumn("emp_name","STRING")\
+    .addColumn("gender","STRING")\
+    .addColumn("salary","INT")\
+    .addColumn("Dept","STRING")\
+    .property("description","table created for demo purpose")\
+    .location("/FileStore/tables/delta")\
+    .execute()
+
+    %sql select * from delta_internal_demo
+
+    %sql insert into delta_internal_demo values(100,"John","M",2000,"IT");
+
+    %sql
+    insert into delta_internal_demo values(200,"philip","M",8000,"HR");
+    insert into delta_internal_demo values(300,"Lara","F",6000,"SALES");
+
+
+    insert into delta_internal_demo values(100,"John","M",2000,"IT");
+    insert into delta_internal_demo values(200,"philip","M",8000,"HR");
+    insert into delta_internal_demo values(300,"Lara","F",6000,"SALES");
+    insert into delta_internal_demo values(100,"John","M",2000,"IT");
+    insert into delta_internal_demo values(200,"philip","M",8000,"HR");
+    insert into delta_internal_demo values(300,"Lara","F",6000,"SALES");
+
+
+    display(spark.read.format("Parquet").load("FileStore/tables/"))
+
+
+
+
+

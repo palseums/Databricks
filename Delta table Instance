@@ -1,0 +1,24 @@
+what is delta table instance
+To make soft link (replica) to actual delta table
+what is the usage of it ?
+To perform DML operations using pyspark language
+
+using path
+=============
+
+DeltaTable.forPath(spark,"/path/to/table")
+
+using Table Name
+===================
+
+DeltaTable.forName(spark,"table_name")
+
+
+
+deltaInstance1 = DeltaTable.forPath(spark,"/FileStore/tables")
+
+type(deltaInstance1.toDF())
+
+display(deltaInstance1.toDF())
+
+deltaInstance1.delete("emp_id=200")

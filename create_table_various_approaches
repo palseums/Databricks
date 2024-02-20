@@ -1,0 +1,71 @@
+Pyspark approaches
+=======================
+
+DeltaTable.create(spark)\
+    .tableName("delta_internal_demo")\
+    .addColumn("emp_id","INT")\
+    .addColumn("emp_name","STRING")\
+    .addColumn("gender","STRING")\
+    .addColumn("salary","INT")\
+    .addColumn("Dept","STRING")\
+    .property("description","table created for demo purpose")\
+    .location("/FileStore/tables/delta")\
+    .execute()
+
+
+DeltaTable.createIfNotExists(spark)\
+    .tableName("delta_internal_demo")\
+    .addColumn("emp_id","INT")\
+    .addColumn("emp_name","STRING")\
+    .addColumn("gender","STRING")\
+    .addColumn("salary","INT")\
+    .addColumn("Dept","STRING")\
+    .property("description","table created for demo purpose")\
+    .location("/FileStore/tables/delta")\
+    .execute()
+
+
+    # The default database name is default. Otherwise you can specify while like below
+    in the table name
+    DeltaTable.createOrReplace(spark)\
+    .tableName("default.delta_internal_demo")\
+    .addColumn("emp_id","INT")\
+    .addColumn("emp_name","STRING")\
+    .addColumn("gender","STRING")\
+    .addColumn("salary","INT")\
+    .addColumn("Dept","STRING")\
+    .property("description","table created for demo purpose")\
+    .location("/FileStore/tables/delta")\
+    .execute()
+
+
+
+    SQL approaches
+    ==================
+%sql
+    create table employee_demo(emp_id int, emp_name string, gender string,
+salary int, dept string) using delta
+
+
+%sql
+    create table if not exists employee_demo(emp_id int, emp_name string, gender string,
+salary int, dept string) using delta
+
+
+%sql
+    create or replace table employee_demo(emp_id int, emp_name string, gender string,
+salary int, dept string) using delta Location 'Filestore/tables/delta/'
+
+
+Using DataFrame:
+======================
+
+employee_data = [(100,"stephen1","M",2000,"IT"),
+(200,"stephen2","M",2000,"IT"),(300,"stephen3","M",2000,"IT")]
+
+employee_schema = ["emp_id","emp_name","gender","salary","dept"]
+
+df = spark.createDataFrame(data=employee_data,schema=employee_schema)
+display(df)
+
+df.write.format("delta").saveAsTable("default.employee_demo1")
