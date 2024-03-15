@@ -1,0 +1,48 @@
+# Command to list fles in a location
+========================================
+%fs ls dbfs:/FileStore/
+dbutils.fs.ls("FileStore/tables")
+
+
+Read single csv file
+=========================
+df = spark.read.format("csv").option("inferSchema", True).option("header",False).option("sep",",").load("/FileStore/tables/part_00000")
+
+Read multiple csv file
+========================
+
+df = spark.read.format("csv").option("inferSchema", True).option("header",False).option("sep",",").load(["/FileStore/tables/part_1,"/FileStore/tables/part_2"])
+
+Data
+=======
+employee_data = [(10,"Raj kumar","1999","100","M",2000),
+                 (20,"kunjan","2002","200","F",8000),
+                 (30,"Raja Sign","2010","100",None,10000),
+                 (40,"Raghav","2011","200","M",9000),
+                 (50,"Rama kumar1","2021","400","M",8000),
+                 (60,"palani","2005","100","M",12000),
+                 (70,"kumar","2020","300","M",4000)
+                 ]
+employee_schema = ["employee_id","name","doj","employee_dept_id","gender","salary"]
+employee_schema1 = "employee_id Integer,name String,doj String,employee_dept_id String,gender String ,salary long"
+employeeDF = spark.createDataFrame(data=employee_data,schema=employee_schema1)
+
+Filter condition
+=================
+display(employeeDF.filter(employeeDF.salary > 5000))
+display(employeeDF.filter( (employeeDF.salary > 5000) & (employeeDF.gender == "M")))
+display(employeeDF.filter(employeeDF.gender.isNull()))
+display(employeeDF.filter(employeeDF.gender.isNotNull()))
+display(employeeDF.filter(employeeDF.employee_dept_id.isin("200","400")))
+display(employeeDF.filter(~employeeDF.employee_dept_id.isin("200","400"))) # Not like
+display(employeeDF.filter(employeeDF.name.startswith("R")))
+display(employeeDF.filter(employeeDF.name.endswith("n")))
+display(employeeDF.filter(employeeDF.name.like("%r")))
+
+Add column
+===========
+from pyspark.sql.functions import lit,col
+employeeDF.withColumn("Location",col("name")).show()
+employeeDF.withColumn("Bonus",col("salary")*0.1).show()
+employeeDF.withColumn("Hello",lit("Hello")).show()
+
