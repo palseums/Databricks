@@ -1,0 +1,66 @@
+%fs ls dbfs:/FileStore/tables/chicago/
+
+--- Reading ----
+transactions_file = "dbfs:/FileStore/tables/transaction/*"
+df_transactions = spark.read.parquet(transactions_file)
+
+df_transactions.show(5, False)
+
+df_angeles = df_transactions.select("cust_id","start_date","txn_id","end_date","city").filter(df_transactions.city == "los_angeles")
+df_denver = df_transactions.select("cust_id","start_date","end_date","city").filter(df_transactions.city == "denver")
+df_chicago = df_transactions.select("start_date","end_date","city","cust_id").filter(df_transactions.city == "chicago")
+
+--- writing ----
+
+df_chicago.write.format("parquet").option("path","dbfs:/FileStore/tables/chicago/").save()
+df_denver.write.format("parquet").option("path","dbfs:/FileStore/tables/denver/").save()
+df_angeles.write.format("parquet").option("path","dbfs:/FileStore/tables/angeles/").save()
+
+df_denver.write.format("csv").option("path","dbfs:/FileStore/tables/denver-csv/").save()
+df_chicago.write.format("csv").option("path","dbfs:/FileStore/tables/chicago-csv/").save()
+
+
+
+
+---- Reading multiple location ---
+
+df_denver = spark.read.format("parquet").load(["dbfs:/FileStore/tables/denver/"])
+df_chicago = spark.read.format("parquet").load(["dbfs:/FileStore/tables/chicago/"])
+df_multiple = spark.read.format("parquet").load(["dbfs:/FileStore/tables/chicago/","dbfs:/FileStore/tables/angeles/"])
+
+
+--- AQE ---
+
+spark.conf.set("spark.sql.adaptive.enabled","true")
+spark.conf.set("spark.sql.adaptive.skewedJoin.enabled","true")
+
+
+--- Time taken
+
+start_time = time.time()
+df_txn_details.count()
+print(f "time taken : { time.time() - start_time}")
+
+--- Broadcast Joins ----
+
+spark.conf.set("spark.sql.autoBroadcastJoinedThreshold",10000000)
+
+
+--- Join ----
+
+import pyspark.sql.functions as F
+df = (df1.join(F.broadcast(df2),on="cust_id",how="inner"))
+
+
+---- Create DataFrme ----
+
+df = spark.createDataFrame([i for i in range(10000000)], IntegetType())
+
+--- Partition id ----
+
+df.withColumn("partition",F.spark_partition_id()).groupBy("partition").count().orderBy("partition").show(15)
+
+
+
+
+
